@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id "io.micronaut.application"
+    id 'io.micronaut.test-resources'
+    id 'com.github.johnrengelman.shadow'
+}
+
+repositories {
+    maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
+    mavenCentral()
+}
+
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute platform(module("io.micronaut:micronaut-bom")) using platform(module("io.micronaut.platform:micronaut-platform:4.0.0-SNAPSHOT"))
+    }
+}
+
+micronaut {
+    version "4.0.0-SNAPSHOT"
+    runtime "netty"
+    testRuntime "junit5"
+    testResources {
+        enabled = true
+    }
+}
+
+configurations {
+    externalTests
+}
+
+dependencies {
+    implementation "org.yaml:snakeyaml"
+    implementation project(":common4")
+    implementation project(":common-test4")
+    externalTests project(":common-test4")
+}
+
+graalvmNative.binaries.all {
+    buildArgs.add("--initialize-at-build-time=views")
+}
+
+test {
+    // This is needed to share tests
+    testClassesDirs += zipTree(configurations.externalTests.files.iterator().next())
+    useJUnitPlatform()
+}
+
+application {
+    mainClass.set("benchmark.Application")
+}
