@@ -46,6 +46,18 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
 }
 
+configurations {
+    all {
+        resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'io.micronaut') {
+                    details.useVersion "4.0.0-SNAPSHOT"
+                }
+            }
+        }
+    }
+}
+
 test {
     useJUnitPlatform()
 }
