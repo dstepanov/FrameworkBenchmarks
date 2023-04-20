@@ -1,15 +1,33 @@
 plugins {
     id 'io.micronaut.benchmark.module'
+    id "io.micronaut.application" version "3.7.8"
+    id 'io.micronaut.test-resources' version "3.7.8"
 }
 
 micronaut {
+    version = '3.9.0'
+    runtime "netty"
+    testRuntime "junit5"
     testResources {
+        enabled = true
         additionalModules.add(R2DBC_POSTGRESQL)
     }
+}
+
+graalvmNative.binaries.all {
+    buildArgs.add("--initialize-at-build-time=views")
 }
 
 dependencies {
     implementation("io.micronaut.r2dbc:micronaut-r2dbc-core")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     implementation("io.r2dbc:r2dbc-pool")
+    implementation project(":common")
+    implementation project(":common-test")
+    externalTests project(":common-test")
+}
+
+test {
+    // This is needed to share tests
+    testClassesDirs += zipTree(configurations.externalTests.files.iterator().next())
 }

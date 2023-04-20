@@ -1,0 +1,45 @@
+plugins {
+    id 'io.micronaut.benchmark.module'
+    id "io.micronaut.application" version "4.0.0-M1"
+    id 'io.micronaut.test-resources' version "4.0.0-M1"
+}
+
+micronaut {
+    version = '4.0.0-M1'
+    runtime "netty"
+    testRuntime "junit5"
+    testResources {
+        enabled = true
+    }
+}
+
+graalvmNative.binaries.all {
+    buildArgs.add("--initialize-at-build-time=views")
+}
+
+graalvmNative.binaries.all {
+    buildArgs.add("--initialize-at-build-time=" +
+            "io.vertx.core.logging.LoggerFactory," +
+            "io.vertx.core.logging.SLF4JLogDelegateFactory," +
+            "io.vertx.core.logging.SLF4JLogDelegate," +
+            "io.vertx.pgclient.impl.codec.DataTypeCodec")
+}
+
+micronaut {
+    testResources {
+        additionalModules.add(JDBC_POSTGRESQL)
+    }
+}
+
+dependencies {
+    implementation("io.vertx:vertx-pg-client")
+    implementation('com.ongres.scram:client:2.1')
+    implementation project(":common4")
+    implementation project(":common-test4")
+    externalTests project(":common-test4")
+}
+
+test {
+    // This is needed to share tests
+    testClassesDirs += zipTree(configurations.externalTests.files.iterator().next())
+}

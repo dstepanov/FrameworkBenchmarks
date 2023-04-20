@@ -8,6 +8,5 @@ repositories {
 }
 
 dependencies {
-    implementation "io.micronaut.gradle:micronaut-gradle-plugin:3.6.2"
     implementation "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
 }

@@ -9,3 +9,11 @@ include 'micronaut-data-jdbc'
 include 'micronaut-data-r2dbc'
 include 'micronaut-data-mongodb'
 include 'micronaut-vertx-pg-client'
+
+// Micronaut 4
+
+include 'common4'
+include 'common-test4'
+
+include 'micronaut4-jdbc'
+include 'micronaut4-vertx-pg-client'
