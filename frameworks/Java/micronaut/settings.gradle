@@ -16,4 +16,5 @@ include 'common4'
 include 'common-test4'
 
 include 'micronaut4-jdbc'
+include 'micronaut4-r2dbc'
 include 'micronaut4-vertx-pg-client'

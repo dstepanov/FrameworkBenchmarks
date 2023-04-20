@@ -259,6 +259,27 @@
         "display_name": "Micronaut 4 JDBC",
         "notes": "",
         "versus": "None"
+      },
+      "r2dbc-m4": {
+        "db_url": "/db",
+        "query_url": "/queries?queries=",
+        "fortune_url": "/fortunes",
+        "update_url": "/updates?queries=",
+        "port": 8080,
+        "approach": "Realistic",
+        "classification": "Micro",
+        "database": "Postgres",
+        "framework": "Micronaut",
+        "language": "Java",
+        "flavor": "None",
+        "orm": "raw",
+        "platform": "Netty",
+        "webserver": "None",
+        "os": "Linux",
+        "database_os": "Linux",
+        "display_name": "Micronaut 4 R2DBC",
+        "notes": "",
+        "versus": "None"
       }
     }
   ]
