@@ -34,6 +34,7 @@ dependencies {
     api("io.micronaut:micronaut-inject")
     api("io.micronaut:micronaut-http-server-netty")
     api("io.micronaut.reactor:micronaut-reactor")
+    api("io.micronaut:micronaut-jackson-databind")
 
     implementation("io.micronaut.data:micronaut-data-model") {
         transitive = false
