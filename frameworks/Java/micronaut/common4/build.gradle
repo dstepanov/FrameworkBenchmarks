@@ -41,6 +41,7 @@ dependencies {
 
     implementation("com.fizzed:rocker-runtime")
 
+    runtimeOnly("org.yaml:snakeyaml")
     runtimeOnly("ch.qos.logback:logback-classic")
 }
 
