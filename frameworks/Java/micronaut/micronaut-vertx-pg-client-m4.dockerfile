@@ -1,4 +1,4 @@
-FROM gradle:8.1-jdk18 as build
+FROM gradle:8.1-jdk17 as build
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle micronaut4-vertx-pg-client:build -x test --no-daemon
