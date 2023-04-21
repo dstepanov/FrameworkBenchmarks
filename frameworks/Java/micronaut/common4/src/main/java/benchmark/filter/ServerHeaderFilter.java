@@ -3,12 +3,13 @@ package benchmark.filter;
 import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Filter;
 import io.micronaut.http.annotation.ResponseFilter;
+import io.micronaut.http.annotation.ServerFilter;
 import io.micronaut.scheduling.annotation.Scheduled;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Filter(Filter.MATCH_ALL_PATTERN)
+@ServerFilter(Filter.MATCH_ALL_PATTERN)
 public class ServerHeaderFilter {
 
     private volatile String dateHeader = newDateHeader();
