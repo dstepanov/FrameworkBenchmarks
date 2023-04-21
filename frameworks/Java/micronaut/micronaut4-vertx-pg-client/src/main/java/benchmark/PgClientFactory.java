@@ -22,7 +22,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.impl.VertxBuilder;
 import io.vertx.pgclient.PgConnectOptions;
-import io.vertx.pgclient.PgConnection;
+import io.vertx.pgclient.PgPool;
+import io.vertx.sqlclient.PoolOptions;
 import jakarta.inject.Singleton;
 
 /**
@@ -33,11 +34,16 @@ public class PgClientFactory {
 
     @Singleton
     @Bean(preDestroy = "close")
-    public PgConnection client(@Property(name = "datasources.default.url") String url,
-                               @Property(name = "datasources.default.username") String user,
-                               @Property(name = "datasources.default.password") String password) throws Exception {
+    public PgPool client(@Property(name = "datasources.default.url") String url,
+                         @Property(name = "datasources.default.username") String user,
+                         @Property(name = "datasources.default.password") String password,
+                         @Property(name = "datasources.default.maximum-pool-size") int maxPoolSize) {
 
-        Thread.sleep(2000);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         VertxOptions vertxOptions = new VertxOptions()
                 .setPreferNativeTransport(true);
@@ -46,11 +52,11 @@ public class PgClientFactory {
                 .setUser(user)
                 .setPassword(password)
                 .setCachePreparedStatements(true)
-                .setPipeliningLimit(100_000);
+                .setPipeliningLimit(1024);
+        PoolOptions poolOptions = new PoolOptions();
+        poolOptions.setMaxSize(maxPoolSize);
 
         Vertx vertx = new VertxBuilder(vertxOptions).init().vertx();
-
-        return PgConnection.connect(vertx, connectOptions).toCompletionStage().toCompletableFuture().get();
+        return PgPool.pool(vertx, connectOptions, poolOptions);
     }
-
 }

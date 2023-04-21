@@ -1,6 +1,7 @@
 package benchmark;
 
-import io.vertx.pgclient.PgConnection;
+import io.vertx.pgclient.PgPool;
+import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Tuple;
 import io.vertx.sqlclient.impl.SqlClientInternal;
 
@@ -10,12 +11,12 @@ import java.util.stream.Collectors;
 
 public class AbstractVertxSqlClientRepository {
 
-    protected final PgConnection connection;
+    protected final Pool pool;
     protected final SqlClientInternal client;
 
-    public AbstractVertxSqlClientRepository(PgConnection connection) {
-        this.connection = connection;
-        this.client = (SqlClientInternal) connection;
+    public AbstractVertxSqlClientRepository(PgPool pgPool) {
+        this.pool = pgPool;
+        this.client = (SqlClientInternal) pgPool;
     }
 
     protected CompletionStage<Void> execute(String sql) {

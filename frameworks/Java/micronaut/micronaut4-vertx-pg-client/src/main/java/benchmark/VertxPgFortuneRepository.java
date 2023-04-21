@@ -2,11 +2,9 @@ package benchmark;
 
 import benchmark.model.Fortune;
 import benchmark.repository.AsyncFortuneRepository;
-import io.vertx.pgclient.PgConnection;
-import io.vertx.sqlclient.PreparedStatement;
+import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
 import java.util.Collection;
@@ -17,31 +15,13 @@ import java.util.stream.Collectors;
 @Singleton
 public class VertxPgFortuneRepository extends AbstractVertxSqlClientRepository implements AsyncFortuneRepository {
 
-    private PreparedStatement selectFortune;
-
-    public VertxPgFortuneRepository(PgConnection pgConnection) {
-        super(pgConnection);
-    }
-
-    @PostConstruct
-    public void init() {
-        try {
-            prepareQuery().toCompletableFuture().get();
-        } catch (Exception e) {
-            // For testing, it will fail because there are no tables
-        }
-    }
-
-    private CompletionStage<Void> prepareQuery() {
-        return connection.prepare("SELECT * FROM Fortune").toCompletionStage()
-                .whenComplete((preparedStatement, throwable) -> selectFortune = preparedStatement)
-                .thenApply(ignore -> null);
+    public VertxPgFortuneRepository(PgPool pgPool) {
+        super(pgPool);
     }
 
     private CompletionStage<Void> createTable() {
         return execute("DROP TABLE IF EXISTS Fortune;")
-                .thenCompose(ignore -> execute("CREATE TABLE Fortune (id INTEGER NOT NULL,message VARCHAR(255) NOT NULL);"))
-                .thenCompose(unused -> prepareQuery());
+                .thenCompose(ignore -> execute("CREATE TABLE Fortune (id INTEGER NOT NULL,message VARCHAR(255) NOT NULL);"));
     }
 
     @Override
@@ -52,7 +32,7 @@ public class VertxPgFortuneRepository extends AbstractVertxSqlClientRepository i
 
     @Override
     public CompletionStage<List<Fortune>> findAll() {
-        return selectFortune.query()
+        return pool.preparedQuery("SELECT * FROM Fortune")
                 .collecting(Collectors.mapping(row -> new Fortune(row.getInteger(0), row.getString(1)), Collectors.toList()))
                 .execute()
                 .map(SqlResult::value)
