@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 import static java.util.Comparator.comparing;
 
 @ExecuteOn(TaskExecutors.IO)
-@Requires(missingBeans = ReactiveBenchmarkController.class)
+@Requires(missingBeans = AbstractBenchmarkController.class)
 @Controller
 public class BenchmarkController extends AbstractBenchmarkController {
 
