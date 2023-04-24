@@ -3,7 +3,3 @@ micronaut:
     event-loops:
       default:
         prefer-native-transport: true
-
-datasources:
-  default:
-    maximum-pool-size: 1024
