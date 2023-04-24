@@ -5,10 +5,10 @@ micronaut:
     port: 8080
     server-header: Micronaut
     date-header: false
-  netty:
-    event-loops:
-      default:
-        num-threads: ${processors:48}
+#  netty:
+#    event-loops:
+#      default:
+#        num-threads: ${processors:48}
 
 netty:
   resource-leak-detector-level: DISABLED
@@ -29,7 +29,7 @@ r2dbc:
       dialect: POSTGRES
       options:
         protocol: postgres
-        initialSize: 0
+#        initialSize: 0
         maxSize: 1024
 
 mongodb:
