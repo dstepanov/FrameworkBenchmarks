@@ -30,7 +30,7 @@ r2dbc:
       dialect: POSTGRES
       options:
         protocol: postgres
-        initialSize: 1024
+        initialSize: 128
         maxSize: 1024
 
 mongodb:

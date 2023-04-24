@@ -31,7 +31,3 @@ test {
     // This is needed to share tests
     testClassesDirs += zipTree(configurations.externalTests.files.iterator().next())
 }
-
-application {
-    mainClass.set("benchmark.R2dbcApplication")
-}

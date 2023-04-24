@@ -1,6 +1,8 @@
 #!/bin/bash
 
 JAVA_OPTIONS="-server \
+  -Xms2G \
+  -Xmx2G \
   -XX:+UseParallelGC \
   -XX:+UseNUMA \
   -XX:+UseStringDeduplication \
