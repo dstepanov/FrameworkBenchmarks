@@ -45,9 +45,8 @@ public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository imp
     public CompletionStage<List<World>> findByIds(List<Integer> ids) {
         List<World> worlds = new ArrayList<>();
         CompletableFuture<List<World>> result = new CompletableFuture<>();
-        PreparedQuery<RowSet<Row>> rowSetPreparedQuery = pool.preparedQuery("SELECT * FROM world WHERE id = $1");
         for (Integer id : ids) {
-            rowSetPreparedQuery.execute(Tuple.of(id), event -> {
+            pool.preparedQuery("SELECT * FROM world WHERE id = $1").execute(Tuple.of(id), event -> {
                 if (event.failed()) {
                     result.completeExceptionally(event.cause());
                 } else {

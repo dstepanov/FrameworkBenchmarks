@@ -14,4 +14,6 @@ JAVA_OPTIONS="-server \
   -Dmicronaut.environments=benchmark
   $@"
 
+export PROCESSORS="$((`grep --count ^processor /proc/cpuinfo`))"
+
 java $JAVA_OPTIONS -jar micronaut.jar
