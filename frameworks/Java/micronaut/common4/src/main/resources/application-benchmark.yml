@@ -9,11 +9,6 @@ micronaut:
     client:
       read-timeout: 60s
 
-netty:
-  default:
-    allocator:
-      max-order: 3
-
 datasources:
   default:
     url: jdbc:postgresql://tfb-database:5432/hello_world?loggerLevel=OFF&disableColumnSanitiser=true&assumeMinServerVersion=12&sslmode=disable

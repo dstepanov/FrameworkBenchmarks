@@ -52,7 +52,7 @@ public class PgClientFactory {
                 .setUser(user)
                 .setPassword(password)
                 .setCachePreparedStatements(true)
-                .setPipeliningLimit(1024);
+                .setPipeliningLimit(100000);
         PoolOptions poolOptions = new PoolOptions();
         poolOptions.setMaxSize(maxPoolSize);
 

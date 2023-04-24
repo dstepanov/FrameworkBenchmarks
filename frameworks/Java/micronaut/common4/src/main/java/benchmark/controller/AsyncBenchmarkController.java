@@ -4,17 +4,11 @@ import benchmark.model.Fortune;
 import benchmark.model.World;
 import benchmark.repository.AsyncFortuneRepository;
 import benchmark.repository.AsyncWorldRepository;
-import benchmark.repository.ReactiveFortuneRepository;
-import benchmark.repository.ReactiveWorldRepository;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.core.async.annotation.SingleResult;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import views.fortunes;
 
 import java.util.ArrayList;
@@ -44,14 +38,12 @@ public class AsyncBenchmarkController extends AbstractBenchmarkController {
 
     // https://github.com/TechEmpower/FrameworkBenchmarks/wiki/Project-Information-Framework-Tests-Overview#single-database-query
     @Get("/db")
-    @SingleResult
     public CompletionStage<World> db() {
         return worldRepository.findById(randomId());
     }
 
     // https://github.com/TechEmpower/FrameworkBenchmarks/wiki/Project-Information-Framework-Tests-Overview#multiple-database-queries
     @Get("/queries")
-    @SingleResult
     public CompletionStage<List<World>> queries(@QueryValue String queries) {
         int count = parseQueryCount(queries);
         List<Integer> ids = new ArrayList<>(count);
@@ -63,7 +55,6 @@ public class AsyncBenchmarkController extends AbstractBenchmarkController {
 
     // https://github.com/TechEmpower/FrameworkBenchmarks/wiki/Project-Information-Framework-Tests-Overview#fortunes
     @Get(value = "/fortunes", produces = "text/html;charset=utf-8")
-    @SingleResult
     public CompletionStage<HttpResponse<String>> fortune() {
         return fortuneRepository.findAll().thenApply(fortuneList -> {
             List<Fortune> all = new ArrayList<>(fortuneList.size() + 1);
@@ -77,7 +68,6 @@ public class AsyncBenchmarkController extends AbstractBenchmarkController {
 
     // https://github.com/TechEmpower/FrameworkBenchmarks/wiki/Project-Information-Framework-Tests-Overview#database-updates
     @Get("/updates")
-    @SingleResult
     public CompletionStage<List<World>> updates(@QueryValue String queries) {
         return queries(queries).thenCompose(worlds -> {
             for (World world : worlds) {

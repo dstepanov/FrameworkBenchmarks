@@ -2,10 +2,12 @@ package benchmark;
 
 import benchmark.model.World;
 import benchmark.repository.ReactiveWorldRepository;
+import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -27,6 +29,16 @@ public class R2dbcWorldRepository implements ReactiveWorldRepository {
     public Publisher<Void> initDb(Collection<World> worlds) {
         return Mono.from(connectionFactory.create())
                 .flatMap(connection -> createTable(connection).then(createWorlds(connection, worlds)).then(Mono.from(connection.close())));
+    }
+
+    @PostConstruct
+    public void init(ConnectionFactory connectionFactory) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        ((ConnectionPool) connectionFactory).warmup().block();
     }
 
     private static Mono<Void> createTable(io.r2dbc.spi.Connection connection) {
