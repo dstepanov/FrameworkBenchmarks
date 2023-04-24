@@ -15,5 +15,6 @@ JAVA_OPTIONS="-server \
   $@"
 
 export PROCESSORS="$((`grep --count ^processor /proc/cpuinfo`))"
+export PROCESSORSX2="$((2*PROCESSORS))"
 
 java $JAVA_OPTIONS -jar micronaut.jar
