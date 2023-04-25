@@ -6,13 +6,12 @@ micronaut:
     server-header: Micronaut
     date-header: false
     idle-timeout: -1s # Remove the idle check from the Netty pipeline
-#  netty:
-#    event-loops:
-#      default:
-#        num-threads: ${processors:48}
 
 netty:
   resource-leak-detector-level: DISABLED
+  default:
+    allocator:
+      max-order: 3
 
 datasources:
   default:
@@ -32,8 +31,8 @@ r2dbc:
       dialect: POSTGRES
       options:
         protocol: postgres
-#        initialSize: 128
-#        maxSize: 128
+        initialSize: 128
+        maxSize: 1024
 
 mongodb:
   connection-pool:

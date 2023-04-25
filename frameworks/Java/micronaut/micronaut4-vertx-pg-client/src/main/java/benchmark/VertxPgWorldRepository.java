@@ -1,75 +1,64 @@
 package benchmark;
 
 import benchmark.model.World;
-import benchmark.repository.AsyncWorldRepository;
+import benchmark.repository.ReactiveWorldRepository;
 import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.pgclient.PgPool;
-import io.vertx.sqlclient.PreparedQuery;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Tuple;
 import jakarta.inject.Singleton;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Singleton
-public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository implements AsyncWorldRepository {
+public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository implements ReactiveWorldRepository {
 
-    public VertxPgWorldRepository(PgPool pgPool) {
-        super(pgPool);
+    public VertxPgWorldRepository(Pool client) {
+        super(client);
     }
 
-    private CompletionStage<Void> createTable() {
-        return execute("DROP TABLE IF EXISTS World;")
-                .thenCompose(ignore -> execute("CREATE TABLE World (id INTEGER NOT NULL,randomNumber INTEGER NOT NULL);"));
-    }
-
-    @Override
-    public CompletionStage<Void> initDb(Collection<World> worlds) {
-        List<Tuple> data = worlds.stream().map(world -> Tuple.of(world.getId(), world.getRandomNumber())).toList();
-        return createTable().thenCompose(unused -> executeBatch("INSERT INTO world VALUES ($1, $2);", data));
+    private Mono<Void> createTable() {
+        return execute("DROP TABLE IF EXISTS World;").then(execute("CREATE TABLE World (id INTEGER NOT NULL,randomNumber INTEGER NOT NULL);").then());
     }
 
     @Override
-    public CompletionStage<World> findById(Integer id) {
-        return pool.preparedQuery("SELECT * FROM world WHERE id = $1").execute(Tuple.of(id)).map(rowSet -> {
-            Row row = rowSet.iterator().next();
-            return new World(row.getInteger(0), row.getInteger(1));
-        }).toCompletionStage();
+    public Mono<Void> initDb(Collection<World> worlds) {
+        List<Tuple> data = worlds.stream().map(world -> Tuple.of(world.getId(), world.getRandomNumber())).collect(Collectors.toList());
+        return createTable().then(executeBatch("INSERT INTO world VALUES ($1, $2);", data).then());
     }
 
     @Override
-    public CompletionStage<List<World>> findByIds(List<Integer> ids) {
-        return pool.withTransaction(sqlConnection -> {
-            Promise<List<World>> promise = Promise.promise();
-            List<World> worlds = new ArrayList<>(ids.size());
-            PreparedQuery<RowSet<Row>> preparedQuery = sqlConnection.preparedQuery("SELECT * FROM world WHERE id = $1");
-            for (Integer id : ids) {
-                preparedQuery.execute(Tuple.of(id), event -> {
-                    if (event.failed()) {
-                        promise.fail(event.cause());
-                    } else {
-                        Row row = event.result().iterator().next();
-                        worlds.add(new World(row.getInteger(0), row.getInteger(1)));
-                    }
-                    if (ids.size() == worlds.size()) {
-                        promise.complete(worlds);
-                    }
-                });
-            }
-            return promise.future();
-        }).toCompletionStage();
+    public Publisher<World> findById(Integer id) {
+        return executeAndCollectOne("SELECT * FROM world WHERE id = $1", Tuple.of(id), row -> new World(row.getInteger(0), row.getInteger(1)));
     }
 
     @Override
-    public CompletionStage<Void> updateAll(Collection<World> worlds) {
-        List<Tuple> data = worlds.stream().map(world -> Tuple.of(world.getId(), world.getRandomNumber())).toList();
-        return pool.preparedQuery("UPDATE world SET randomnumber = $2 WHERE id = $1").executeBatch(data).<Void>mapEmpty().toCompletionStage();
+    public Publisher<List<World>> findByIds(List<Integer> ids) {
+        return asMono(
+                client.withConnection(sqlConnection -> asFuture(
+                        Flux.fromIterable(ids)
+                                .flatMap(id -> execute(sqlConnection, "SELECT * FROM world WHERE id = $1", Tuple.of(id))
+                                        .map(row -> new World(row.getInteger(0), row.getInteger(1))))
+                                .collectList()))
+        );
+    }
+
+    private <T> Mono<T> asMono(Future<T> future) {
+        return Mono.fromFuture(future.toCompletionStage().toCompletableFuture());
+    }
+
+    private <T> Future<T> asFuture(Mono<T> mono) {
+        return Future.fromCompletionStage(mono.toFuture());
+    }
+
+    @Override
+    public Publisher<Void> updateAll(Collection<World> worlds) {
+        List<Tuple> data = worlds.stream().map(world -> Tuple.of(world.getId(), world.getRandomNumber())).collect(Collectors.toList());
+        return executeBatch("UPDATE world SET randomnumber = $2 WHERE id = $1", data).then();
     }
 
 }
