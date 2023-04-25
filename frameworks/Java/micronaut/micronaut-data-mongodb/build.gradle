@@ -22,7 +22,7 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-mongodb:3.8.1")
     runtimeOnly("io.micronaut.mongodb:micronaut-mongo-sync")
     implementation project(":common")
-    implementation project(":common-test")
+    testImplementation project(":common-test")
     externalTests project(":common-test")
 }
 

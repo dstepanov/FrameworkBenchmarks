@@ -5,6 +5,7 @@ micronaut:
     port: 8080
     server-header: Micronaut
     date-header: false
+    idle-timeout: -1
 #  netty:
 #    event-loops:
 #      default:

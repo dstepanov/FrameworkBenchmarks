@@ -32,7 +32,7 @@ dependencies {
     implementation("io.vertx:vertx-pg-client")
     implementation('com.ongres.scram:client:2.1')
     implementation project(":common")
-    implementation project(":common-test")
+    testImplementation project(":common-test")
     externalTests project(":common-test")
 }
 

@@ -2,6 +2,8 @@ package benchmark;
 
 import benchmark.model.World;
 import benchmark.repository.AsyncWorldRepository;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PreparedQuery;
 import io.vertx.sqlclient.Row;
@@ -43,22 +45,25 @@ public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository imp
 
     @Override
     public CompletionStage<List<World>> findByIds(List<Integer> ids) {
-        List<World> worlds = new ArrayList<>();
-        CompletableFuture<List<World>> result = new CompletableFuture<>();
-        for (Integer id : ids) {
-            pool.preparedQuery("SELECT * FROM world WHERE id = $1").execute(Tuple.of(id), event -> {
-                if (event.failed()) {
-                    result.completeExceptionally(event.cause());
-                } else {
-                    Row row = event.result().iterator().next();
-                    worlds.add(new World(row.getInteger(0), row.getInteger(1)));
-                }
-                if (ids.size() == worlds.size()) {
-                    result.complete(worlds);
-                }
-            });
-        }
-        return result;
+        return pool.withTransaction(sqlConnection -> {
+            Promise<List<World>> promise = Promise.promise();
+            List<World> worlds = new ArrayList<>(ids.size());
+            PreparedQuery<RowSet<Row>> preparedQuery = sqlConnection.preparedQuery("SELECT * FROM world WHERE id = $1");
+            for (Integer id : ids) {
+                preparedQuery.execute(Tuple.of(id), event -> {
+                    if (event.failed()) {
+                        promise.fail(event.cause());
+                    } else {
+                        Row row = event.result().iterator().next();
+                        worlds.add(new World(row.getInteger(0), row.getInteger(1)));
+                    }
+                    if (ids.size() == worlds.size()) {
+                        promise.complete(worlds);
+                    }
+                });
+            }
+            return promise.future();
+        }).toCompletionStage();
     }
 
     @Override
