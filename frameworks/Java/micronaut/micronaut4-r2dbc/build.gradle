@@ -22,9 +22,22 @@ dependencies {
     implementation("io.micronaut.r2dbc:micronaut-r2dbc-core")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     implementation("io.r2dbc:r2dbc-pool")
+    implementation("io.projectreactor.netty:reactor-netty-core")
     implementation project(":common4")
     testImplementation project(":common-test4")
     externalTests project(":common-test4")
+}
+
+configurations {
+    configureEach {
+        resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'io.projectreactor.netty') {
+                    details.useVersion '1.0.28'
+                }
+            }
+        }
+    }
 }
 
 test {

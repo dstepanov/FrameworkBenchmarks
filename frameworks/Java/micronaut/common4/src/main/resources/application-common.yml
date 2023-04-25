@@ -5,7 +5,7 @@ micronaut:
     port: 8080
     server-header: Micronaut
     date-header: false
-    idle-timeout: -1s
+    idle-timeout: -1s # Remove the idle check from the Netty pipeline
 #  netty:
 #    event-loops:
 #      default:
@@ -32,10 +32,14 @@ r2dbc:
       dialect: POSTGRES
       options:
         protocol: postgres
-        initialSize: 128
-        maxSize: 1024
+#        initialSize: 128
+#        maxSize: 128
 
 mongodb:
+  connection-pool:
+    max-size: 1024
+    min-size: 512
+    max-connecting: 100
   package-names:
     benchmark
   uuid-representation: STANDARD
