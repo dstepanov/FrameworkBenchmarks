@@ -18,11 +18,9 @@ datasources:
     driverClassName: org.postgresql.Driver
     db-type: postgresql
     dialect: POSTGRES
-    maximum-pool-size: 1024
-    minimum-idle: 512
+    maximum-pool-size: 48
     transaction-per-operation: false
     allow-connection-per-operation: true
-    initialization-fail-timeout: 30000
 
 r2dbc:
   datasources:
@@ -31,8 +29,8 @@ r2dbc:
       dialect: POSTGRES
       options:
         protocol: postgres
-        initialSize: 128
-        maxSize: 1024
+        initialSize: 0
+        maxSize: 48
 
 mongodb:
   connection-pool:
