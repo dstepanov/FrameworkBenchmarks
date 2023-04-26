@@ -4,7 +4,6 @@ import benchmark.model.Fortune;
 import benchmark.repository.ReactiveFortuneRepository;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Tuple;
-import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
@@ -12,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Singleton
 public class VertxPgFortuneRepository extends AbstractVertxSqlClientRepository implements ReactiveFortuneRepository {
 
     public VertxPgFortuneRepository(Pool client) {

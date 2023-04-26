@@ -8,12 +8,14 @@ import io.vertx.sqlclient.PreparedQuery;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.Tuple;
+import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class VertxPgAsyncWorldRepository extends AbstractAsyncVertxSqlClientRepository implements AsyncWorldRepository {
 
     public VertxPgAsyncWorldRepository(PgPool pgPool) {

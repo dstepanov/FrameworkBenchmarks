@@ -5,7 +5,6 @@ import benchmark.repository.ReactiveWorldRepository;
 import io.vertx.core.Future;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Tuple;
-import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Singleton
 public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository implements ReactiveWorldRepository {
 
     public VertxPgWorldRepository(Pool client) {
