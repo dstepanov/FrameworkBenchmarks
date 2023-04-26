@@ -5,14 +5,12 @@ import benchmark.repository.AsyncFortuneRepository;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
-import jakarta.inject.Singleton;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Singleton
 public class VertxPgAsyncFortuneRepository extends AbstractAsyncVertxSqlClientRepository implements AsyncFortuneRepository {
 
     public VertxPgAsyncFortuneRepository(PgPool pgPool) {

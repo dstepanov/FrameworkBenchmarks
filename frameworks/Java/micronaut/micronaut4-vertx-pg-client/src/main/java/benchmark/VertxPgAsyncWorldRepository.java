@@ -8,14 +8,12 @@ import io.vertx.sqlclient.PreparedQuery;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.Tuple;
-import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-@Singleton
 public class VertxPgAsyncWorldRepository extends AbstractAsyncVertxSqlClientRepository implements AsyncWorldRepository {
 
     public VertxPgAsyncWorldRepository(PgPool pgPool) {
@@ -43,7 +41,7 @@ public class VertxPgAsyncWorldRepository extends AbstractAsyncVertxSqlClientRepo
 
     @Override
     public CompletionStage<List<World>> findByIds(List<Integer> ids) {
-        return pool.withTransaction(sqlConnection -> {
+        return pool.withConnection(sqlConnection -> {
             Promise<List<World>> promise = Promise.promise();
             List<World> worlds = new ArrayList<>(ids.size());
             PreparedQuery<RowSet<Row>> preparedQuery = sqlConnection.preparedQuery("SELECT * FROM world WHERE id = $1");

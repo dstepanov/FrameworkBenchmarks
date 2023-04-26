@@ -55,12 +55,17 @@ public class ReactiveBenchmarkController extends AbstractBenchmarkController {
     @Get("/queries")
     @SingleResult
     public Publisher<List<World>> queries(@QueryValue String queries) {
-        int count = parseQueryCount(queries);
-        List<Integer> ids = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            ids.add(randomId());
-        }
+        Integer[] ids = queryIds(queries);
         return worldRepository.findByIds(ids);
+    }
+
+    private Integer[] queryIds(String queries) {
+        int count = parseQueryCount(queries);
+        Integer[] ids = new Integer[count];
+        for (int i = 0; i < count; i++) {
+            ids[i] = randomId();
+        }
+        return ids;
     }
 
     // https://github.com/TechEmpower/FrameworkBenchmarks/wiki/Project-Information-Framework-Tests-Overview#fortunes
@@ -81,13 +86,12 @@ public class ReactiveBenchmarkController extends AbstractBenchmarkController {
     @Get("/updates")
     @SingleResult
     public Publisher<List<World>> updates(@QueryValue String queries) {
-        return Flux.from(queries(queries)).flatMap(worlds -> {
-            for (World world : worlds) {
-                world.setRandomNumber(randomWorldNumber());
-            }
-            worlds.sort(Comparator.comparingInt(World::getId)); // Avoid deadlock
-            return Mono.from(worldRepository.updateAll(worlds)).thenReturn(worlds);
-        });
+        Integer[] ids = queryIds(queries);
+        Integer[] randoms = new Integer[ids.length];
+        for (int i = 0; i < randoms.length; i++) {
+            randoms[i] = randomWorldNumber();
+        }
+        return worldRepository.updateAll(ids, randoms);
     }
 
 }

@@ -3,7 +3,9 @@ package benchmark;
 import benchmark.model.Fortune;
 import benchmark.repository.ReactiveFortuneRepository;
 import io.vertx.sqlclient.Pool;
+import io.vertx.sqlclient.SqlResult;
 import io.vertx.sqlclient.Tuple;
+import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
@@ -11,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Singleton
 public class VertxPgFortuneRepository extends AbstractVertxSqlClientRepository implements ReactiveFortuneRepository {
 
     public VertxPgFortuneRepository(Pool client) {
@@ -29,7 +32,14 @@ public class VertxPgFortuneRepository extends AbstractVertxSqlClientRepository i
 
     @Override
     public Publisher<List<Fortune>> findAll() {
-        return executeAndCollectList("SELECT * FROM Fortune", row -> new Fortune(row.getInteger(0), row.getString(1)));
+        return Mono.fromFuture(
+                client.withConnection(sqlConnection -> sqlConnection.preparedQuery("SELECT * FROM Fortune")
+                                .collecting(Collectors.mapping(row -> new Fortune(row.getInteger(0), row.getString(1)), Collectors.toList()))
+                                .execute()
+                                .map(SqlResult::value))
+                        .toCompletionStage()
+                        .toCompletableFuture()
+        );
     }
 
 }

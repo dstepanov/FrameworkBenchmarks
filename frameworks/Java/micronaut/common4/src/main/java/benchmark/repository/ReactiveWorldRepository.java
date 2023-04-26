@@ -13,10 +13,8 @@ public interface ReactiveWorldRepository {
 
     Publisher<World> findById(Integer id);
 
-    default Publisher<List<World>> findByIds(List<Integer> ids) {
-        return Flux.fromIterable(ids).flatMap(this::findById).collectList();
-    }
+    Publisher<List<World>> findByIds(Integer[] ids);
 
-    Publisher<Void> updateAll(Collection<World> worlds);
+    Publisher<List<World>> updateAll(Integer[] ids, Integer[] randoms);
 
 }

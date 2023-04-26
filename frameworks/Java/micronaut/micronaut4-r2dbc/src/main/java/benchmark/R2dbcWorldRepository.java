@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 @Singleton
@@ -75,30 +76,37 @@ public class R2dbcWorldRepository implements ReactiveWorldRepository {
     }
 
     @Override
-    public Publisher<List<World>> findByIds(List<Integer> ids) {
+    public Publisher<List<World>> findByIds(Integer[] ids) {
         return Mono.usingWhen(connectionFactory.create(),
-                connection -> {
-                    Statement statement = connection.createStatement("SELECT * FROM world WHERE id = $1");
-                    boolean first = true;
-                    for (Integer id : ids) {
-                        if (!first) {
-                            statement.add();
-                        } else {
-                            first = false;
-                        }
-                        statement.bind(0, id);
-                    }
-                    return Flux.from(statement.execute())
-                            .flatMap(result -> Flux.from(result.map((row, rowMetadata) -> new World(row.get(0, Integer.class), row.get(1, Integer.class)))))
-                            .collectList();
-                },
+                connection -> findByIds(connection, ids),
                 Connection::close);
     }
 
+    private Mono<List<World>> findByIds(Connection connection, Integer[] ids) {
+        Statement statement = connection.createStatement("SELECT * FROM world WHERE id = $1");
+        boolean first = true;
+        for (Integer id : ids) {
+            if (!first) {
+                statement.add();
+            } else {
+                first = false;
+            }
+            statement.bind(0, id);
+        }
+        return Flux.from(statement.execute())
+                .flatMap(result -> result.map((row, rowMetadata) -> new World(row.get(0, Integer.class), row.get(1, Integer.class))))
+                .collectList();
+    }
+
     @Override
-    public Publisher<Void> updateAll(Collection<World> worlds) {
+    public Publisher<List<World>> updateAll(Integer[] ids, Integer[] randoms) {
         return Mono.usingWhen(connectionFactory.create(),
-                connection -> {
+                connection -> findByIds(connection, ids).flatMap(worlds -> {
+
+                    worlds.sort(Comparator.comparingInt(World::getId)); // Avoid deadlock
+
+                    int index = 0;
+
                     Statement statement = connection.createStatement("UPDATE world SET randomnumber = $2 WHERE id = $1");
                     boolean first = true;
                     for (World world : worlds) {
@@ -108,11 +116,13 @@ public class R2dbcWorldRepository implements ReactiveWorldRepository {
                             first = false;
                         }
                         statement.bind(0, world.getId());
-                        statement.bind(1, world.getRandomNumber());
+                        Integer random = randoms[index++];
+                        statement.bind(1, random);
+                        world.setRandomNumber(random);
                     }
-                    return Flux.from(statement.execute()).flatMap(Result::getRowsUpdated).then();
-                },
-                Connection::close).then();
+                    return Flux.from(statement.execute()).flatMap(Result::getRowsUpdated).then(Mono.just(worlds));
+                }),
+                Connection::close);
     }
 
 }
