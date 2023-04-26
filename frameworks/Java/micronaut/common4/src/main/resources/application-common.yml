@@ -18,7 +18,7 @@ datasources:
     driverClassName: org.postgresql.Driver
     db-type: postgresql
     dialect: POSTGRES
-    maximum-pool-size: 48
+    maximum-pool-size: 512
     transaction-per-operation: false
     allow-connection-per-operation: true
 
@@ -30,7 +30,7 @@ r2dbc:
       options:
         protocol: postgres
         initialSize: 0
-        maxSize: 48
+        maxSize: 512
 
 mongodb:
   connection-pool:

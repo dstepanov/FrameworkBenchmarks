@@ -37,10 +37,9 @@ public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository imp
 
     @Override
     public Publisher<World> findById(Integer id) {
-        Tuple tuple = Tuple.of(id);
         return asMono(
                 client.withConnection(sqlConnection -> sqlConnection.preparedQuery("SELECT * FROM world WHERE id = $1")
-                        .execute(tuple)
+                        .execute(Tuple.of(id))
                         .map(rowSet -> {
                             Row row = rowSet.iterator().next();
                             return new World(row.getInteger(0), row.getInteger(1));
