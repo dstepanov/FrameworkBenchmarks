@@ -55,6 +55,7 @@ public class PgClientFactory {
                 .setPipeliningLimit(100000);
         PoolOptions poolOptions = new PoolOptions();
         poolOptions.setMaxSize(maxPoolSize);
+        poolOptions.setPoolCleanerPeriod(-1);
 
         Vertx vertx = new VertxBuilder(vertxOptions).init().vertx();
         return PgPool.pool(vertx, connectOptions, poolOptions);

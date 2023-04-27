@@ -18,7 +18,7 @@ datasources:
     driverClassName: org.postgresql.Driver
     db-type: postgresql
     dialect: POSTGRES
-    maximum-pool-size: 1024
+    maximum-pool-size: 512
     transaction-per-operation: false
     allow-connection-per-operation: true
 

@@ -7,28 +7,18 @@ import benchmark.repository.ReactiveWorldRepository;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.async.annotation.SingleResult;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
-import io.micronaut.scheduling.TaskExecutors;
-import io.micronaut.scheduling.annotation.ExecuteOn;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import views.fortunes;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.util.Comparator.comparing;
 
-@ExecuteOn(TaskExecutors.IO)
 @Requires(beans = {ReactiveFortuneRepository.class, ReactiveWorldRepository.class})
 @Controller
 public class ReactiveBenchmarkController extends AbstractBenchmarkController {

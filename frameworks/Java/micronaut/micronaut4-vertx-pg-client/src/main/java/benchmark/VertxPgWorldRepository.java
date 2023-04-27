@@ -8,6 +8,7 @@ import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.SqlConnection;
 import io.vertx.sqlclient.Tuple;
+import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Singleton
 public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository implements ReactiveWorldRepository {
@@ -27,6 +29,15 @@ public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository imp
 
     private Mono<Void> createTable() {
         return execute("DROP TABLE IF EXISTS World;").then(execute("CREATE TABLE World (id INTEGER NOT NULL,randomNumber INTEGER NOT NULL);").then());
+    }
+
+    @PostConstruct
+    public void warmupPool() {
+        CompositeFuture.all(
+                (List) IntStream.range(0, 1000)
+                        .mapToObj(value -> client.withConnection(sqlConnection -> Future.succeededFuture()))
+                        .toList()
+        ).list();
     }
 
     @Override
