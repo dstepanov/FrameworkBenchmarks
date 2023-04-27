@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -32,12 +33,12 @@ public class VertxPgWorldRepository extends AbstractVertxSqlClientRepository imp
     }
 
     @PostConstruct
-    public void warmupPool() {
+    public void warmupPool() throws Exception {
         CompositeFuture.all(
                 (List) IntStream.range(0, 1000)
                         .mapToObj(value -> client.withConnection(sqlConnection -> Future.succeededFuture()))
                         .toList()
-        ).list();
+        ).flatMap(f -> f).toCompletionStage().toCompletableFuture().get();
     }
 
     @Override
