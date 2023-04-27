@@ -11,6 +11,8 @@ import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,6 +28,7 @@ import java.util.stream.IntStream;
 
 import static java.util.Comparator.comparing;
 
+@ExecuteOn(TaskExecutors.IO)
 @Requires(beans = {ReactiveFortuneRepository.class, ReactiveWorldRepository.class})
 @Controller
 public class ReactiveBenchmarkController extends AbstractBenchmarkController {
